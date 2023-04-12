@@ -12,7 +12,7 @@ class Categoria(models.Model):
 # Create your models here.
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
-    categoria = models.ForeignKey(Categoria,on_delete=models.CASCADE)
+    categoria_id = models.ForeignKey(Categoria,on_delete=models.CASCADE)
     descripcion = models.TextField(max_length=300,blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     
@@ -20,7 +20,7 @@ class Producto(models.Model):
         return self.nombre
     
 class Sucursal(models.Model):
-    nombre=models.CharField(max_length=100)
+    ciudad=models.CharField(max_length=100)
     direccion=models.CharField(max_length=300)
     fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     
@@ -30,7 +30,7 @@ class Sucursal(models.Model):
         verbose_name_plural='Sucursales'
     
     def __str__(self):
-        return f'{self.nombre} - {self.direccion}'
+        return f'{self.ciudad} - {self.direccion}'
     
 class Producto_Sucursal(models.Model):
     producto_id = models.ForeignKey(Producto,on_delete=models.CASCADE)
