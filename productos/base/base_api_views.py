@@ -3,6 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
+# https://www.django-rest-framework.org/api-guide/views/#class-based-views
+
 '''
 Esta es una clase base para generar el GET y POST de distintos Modelos haciendo herencia
 se le asigna un atributo serializer_class que es donde se especificara el serializador

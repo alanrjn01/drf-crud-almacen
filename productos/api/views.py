@@ -1,6 +1,7 @@
 from rest_framework import generics,response,status
 from productos.api.serializers import CategoriaSerializer,ProductoSerializer,SucursalSerializer,Producto_SucursalSerializer
 from productos.base.base_api_views import BaseListCreateApiView,BaseRetrieveUpdateDestroyApiView
+from productos.base.base_model_view_set import BaseModelViewSet
 
 #ListApiView solamente reconoce la informacion que proviene por el metodo get
 #le pasa la consulta al serializador definido e internamente retorna un Response
@@ -88,20 +89,15 @@ class ProductoRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
 #-----
 #Sucursal
     
-class SucursalListCreateApiView(BaseListCreateApiView):
+class SucursalModelViewSet(BaseModelViewSet):
     serializer_class = SucursalSerializer
-    
-class SucursalRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
-    serializer_class = SucursalSerializer
-    
+        
     
 #--------   
 #Producto_Sucursal    
-class ProductoSucursalListCreateApiView(BaseListCreateApiView):
+class ProductoSucursalModelViewSet(BaseModelViewSet):
     serializer_class = Producto_SucursalSerializer
-    
-class ProductoSucursalRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
-    serializer_class = Producto_SucursalSerializer
+
     
 
 
