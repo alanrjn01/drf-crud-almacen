@@ -3,7 +3,7 @@ from .models import Categoria,Producto,Sucursal,Producto_Sucursal
 
 #añadiendo al panel de administrador una columna con las ID de categoria
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('id','nombre')
+    list_display = ('id','activo','nombre')
 
 
 # Register your models here.

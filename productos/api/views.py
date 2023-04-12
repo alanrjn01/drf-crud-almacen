@@ -1,7 +1,6 @@
-from rest_framework import generics
-from productos.models import Categoria
-from productos.api import serializers
-from productos.base.base_api_views import BaseListApiView,BaseCreateApiView
+from rest_framework import generics,response,status
+from productos.api.serializers import CategoriaSerializer,ProductoSerializer,SucursalSerializer,Producto_SucursalSerializer
+from productos.base.base_api_views import BaseListCreateApiView,BaseRetrieveUpdateDestroyApiView
 
 #ListApiView solamente reconoce la informacion que proviene por el metodo get
 #le pasa la consulta al serializador definido e internamente retorna un Response
@@ -9,45 +8,100 @@ from productos.base.base_api_views import BaseListApiView,BaseCreateApiView
 #Categoria
 class CategoriaListApiView(generics.ListAPIView):
     #serializador en cual toma la referencia
-    serializer_class = serializers.CategoriaSerializer
+    serializer_class = CategoriaSerializer
     
     #consulta especificada
     def get_queryset(self):
-        categoria = Categoria.objects.filter()
+        categoria = self.get_serializer_class().Meta.model.objects.filter()
         return categoria
-    
+
+#clase para crear   
+#si decido utilizar logica en la creacion puedo soobrescribir el metodo post(self,request)  
 class CategoriaCreateApiView(generics.CreateAPIView):
-    serializer_class = serializers.CategoriaSerializer
+    serializer_class = CategoriaSerializer
     
+    
+#clase para obtener (funciona internamente con una primary key)    
+class CategoriaRetrieveApiView(generics.RetrieveAPIView):
+    serializer_class = CategoriaSerializer
+    
+    def get_queryset(self):
+        categoria_seleccionada = self.get_serializer_class().Meta.model.objects.filter()
+        return categoria_seleccionada
+    
+#clase para eliminar por primary key
+#hay que aclarar un get queryset para que el apiview sepa donde buscar 
+class CategoriaDestroyApiView(generics.DestroyAPIView):
+    serializer_class = CategoriaSerializer
+    
+    
+    def get_queryset(self):
+        categorias = self.get_serializer().Meta.model.objects.filter(activo = True)
+        return categorias
+    
+    #eliminacion logica:
+    #filtro en el queryset de categorias buscando la primary key 
+    #paso el estado de activo a falso, lo guardo y despues retorno una response
+    def delete(self,request,pk=None):
+        categoria_seleccionada = self.get_queryset().filter(id=pk).first()
+        print(categoria_seleccionada)
+        if categoria_seleccionada:
+            categoria_seleccionada.activo = False
+            categoria_seleccionada.save()
+            return response.Response({'message':'deleted'},status=status.HTTP_200_OK)
+        return response.Response({'error':'not found'},status=status.HTTP_400_BAD_REQUEST)
+    
+#clase para actualizar
+class CategoriaUpdateApiView(generics.UpdateAPIView):
+    serializer_class = CategoriaSerializer
+    
+    def get_queryset(self):
+        categorias = self.get_serializer().Meta.model.objects.filter(activo = True)
+        return categorias
+    
+    
+    #obtengo la instancia de la categoria a actualizar 
+    #si es distinta a None, utilizo el serializer de la clase y le paso la instancia y la data de request
+    #compruebo las validaciones del serializer
+    #luego guardo en la base de datos el serializador y hago un response
+    def put(self,request,pk=None):
+        categoria_a_actualizar = self.get_queryset().filter(id=pk).first()
+        if categoria_a_actualizar:
+            serializer_a_actualizar = self.serializer_class(categoria_a_actualizar,data = request.data)
+            if serializer_a_actualizar.is_valid():
+                serializer_a_actualizar.save()
+                return response.Response(serializer_a_actualizar.data,status=status.HTTP_200_OK)
+            return response.Response(serializer_a_actualizar.errors,status=status.HTTP_400_BAD_REQUEST)
+        return response.Response({'message':'not found'},status=status.HTTP_404_NOT_FOUND)
+            
+        
     
 #utilizando jerarquia de clases:    
 #-----------
 #Producto    
-class ProductoListApiView(BaseListApiView):
-    serializer_class = serializers.ProductoSerializer
+
+class ProductoListCreateApiView(BaseListCreateApiView):
+    serializer_class = ProductoSerializer
     
-    
-class ProductoCreateApiView(BaseCreateApiView):
-    serializer_class = serializers.ProductoSerializer
-    
+class ProductoRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
+    serializer_class = ProductoSerializer
 #-----
 #Sucursal
     
-class SucursalListApiView(BaseListApiView):
+class SucursalListCreateApiView(BaseListCreateApiView):
+    serializer_class = SucursalSerializer
     
-    serializer_class = serializers.SucursalSerializer
+class SucursalRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
+    serializer_class = SucursalSerializer
     
-class SucursalCreateApiView(BaseCreateApiView):
-    
-    serializer_class = serializers.SucursalSerializer
     
 #--------   
 #Producto_Sucursal    
-class Producto_SucursalListApiView(BaseListApiView):
+class ProductoSucursalListCreateApiView(BaseListCreateApiView):
+    serializer_class = Producto_SucursalSerializer
     
-    serializer_class = serializers.Producto_SucursalSerializer
+class ProductoSucursalRetrieveUpdateDestroyApiView(BaseRetrieveUpdateDestroyApiView):
+    serializer_class = Producto_SucursalSerializer
     
-class Producto_SucursalCreateApiView(BaseCreateApiView):
-    
-    serializer_class = serializers.Producto_SucursalSerializer
+
 

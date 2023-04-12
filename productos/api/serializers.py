@@ -17,11 +17,21 @@ class CategoriaSerializer(serializers.ModelSerializer):
 class ProductoSerializer(serializers.ModelSerializer):
 
     #usando stringrelatedfield, en los formularios de django no vas a poder tener autocompletado
-    categoria_id = serializers.StringRelatedField()
+    #categoria_id = serializers.StringRelatedField()
 
     class Meta:
         model = Producto
         exclude = ('fecha_creacion',)
+        
+    #con to_representation() especificamos el json que va a devolver y podemos asignarselo manualmente
+    # a traves de la instancia    
+    def to_representation(self, instance):
+        return {
+            'id':instance.id,
+            'nombre':instance.nombre,
+            'descripcion':instance.descripcion,
+            'categoria':instance.categoria_id.nombre
+        }
         
         
 class SucursalSerializer(serializers.ModelSerializer):
@@ -33,7 +43,15 @@ class SucursalSerializer(serializers.ModelSerializer):
         
 class Producto_SucursalSerializer(serializers.ModelSerializer):
     
-
     class Meta:
         model = Producto_Sucursal
         fields = '__all__'
+        
+    def to_representation(self, instance):
+        return {
+            'id':instance.id,
+            'stock':instance.stock,
+            'precio':instance.precio,
+            'producto':instance.producto_id.nombre,
+            'sucursal':instance.sucursal_id.ciudad
+        }

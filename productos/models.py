@@ -4,6 +4,7 @@ from django.db import models
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50)
+    activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     
     def __str__(self):
@@ -14,6 +15,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     categoria_id = models.ForeignKey(Categoria,on_delete=models.CASCADE)
     descripcion = models.TextField(max_length=300,blank=True)
+    activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     
     def __str__(self):
@@ -22,6 +24,7 @@ class Producto(models.Model):
 class Sucursal(models.Model):
     ciudad=models.CharField(max_length=100)
     direccion=models.CharField(max_length=300)
+    activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     
     #la clase meta define los metadatos de la clase
@@ -37,6 +40,7 @@ class Producto_Sucursal(models.Model):
     sucursal_id = models.ForeignKey(Sucursal,on_delete=models.CASCADE)
     stock = models.IntegerField()
     precio = models.FloatField()
+    activo = models.BooleanField(default=True)
     
     class Meta:
         verbose_name='Producto_Sucursal'
