@@ -5,6 +5,8 @@ from productos.models import Categoria,Producto,Producto_Sucursal,Sucursal #impo
 #creo un serializer del modelo a partir de la clase ModelSerializer
 class CategoriaSerializer(serializers.ModelSerializer):
     
+    #Swagger toma los metadatos para realizar la documentacion, no el metodo to_representation()
+    
     #indico los metadatos del serializer
     # model = modelo de django
     # fields = '__all__' para mostrar todos los campos

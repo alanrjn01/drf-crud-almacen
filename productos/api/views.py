@@ -8,31 +8,50 @@ from productos.base.base_model_view_set import BaseModelViewSet
 
 #Categoria
 class CategoriaListApiView(generics.ListAPIView):
+    """
+    obtiene todas las categorias
+    """
+    
     #serializador en cual toma la referencia
     serializer_class = CategoriaSerializer
     
-    #consulta especificada
+    #indicando el queryset (obtiene todos los objetos)
     def get_queryset(self):
-        categoria = self.get_serializer_class().Meta.model.objects.filter()
+        
+        categoria = self.get_serializer_class().Meta.model.objects.filter(activo=True)
         return categoria
 
 #clase para crear   
 #si decido utilizar logica en la creacion puedo soobrescribir el metodo post(self,request)  
 class CategoriaCreateApiView(generics.CreateAPIView):
+    """
+    recibe un json con los datos de la categoria para crear una insercion
+    """
+    
     serializer_class = CategoriaSerializer
+    
     
     
 #clase para obtener (funciona internamente con una primary key)    
 class CategoriaRetrieveApiView(generics.RetrieveAPIView):
+    """
+    recibe una id y la busca en el queryset
+    """
+    
     serializer_class = CategoriaSerializer
     
     def get_queryset(self):
-        categoria_seleccionada = self.get_serializer_class().Meta.model.objects.filter()
+        categoria_seleccionada = self.get_serializer_class().Meta.model.objects.filter(activo=True)
         return categoria_seleccionada
     
 #clase para eliminar por primary key
 #hay que aclarar un get queryset para que el apiview sepa donde buscar 
 class CategoriaDestroyApiView(generics.DestroyAPIView):
+    """
+    realiza una eliminacion a nivel logico y no de base de datos, ya que no elimina la instancia de la base
+    sino que cambia su atributo 'activo' a False y de esta forma el elemento ya no se obtiene en las peticiones
+    """
+    
     serializer_class = CategoriaSerializer
     
     
@@ -54,6 +73,11 @@ class CategoriaDestroyApiView(generics.DestroyAPIView):
     
 #clase para actualizar
 class CategoriaUpdateApiView(generics.UpdateAPIView):
+    """
+    recibe una primary key y busca el elemento en el queryset, si encuentra el elemento lo serializa 
+    con la data recibida en el request, si pasa las validaciones el serializer se guarda
+    """
+    
     serializer_class = CategoriaSerializer
     
     def get_queryset(self):
