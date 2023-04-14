@@ -1,6 +1,5 @@
 from rest_framework import serializers #importo los serializadores
-from productos.models import Categoria,Producto,Producto_Sucursal,Sucursal #importo la clase del modelo
-
+from productos.models import Categoria,Producto,Producto_Sucursal,Sucursal,Usuario_Producto #importo la clase del modelo
 
 #creo un serializer del modelo a partir de la clase ModelSerializer
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -49,11 +48,30 @@ class Producto_SucursalSerializer(serializers.ModelSerializer):
         model = Producto_Sucursal
         fields = '__all__'
         
-    def to_representation(self, instance):
+    """ def to_representation(self, instance):
         return {
             'id':instance.id,
             'stock':instance.stock,
             'precio':instance.precio,
             'producto':instance.producto_id.nombre,
             'sucursal':instance.sucursal_id.ciudad
+        } """
+    
+
+        
+
+class Usuario_ProductoSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Usuario_Producto
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        print(instance)
+        return {
+            'id':instance.id,
+            'producto':instance.producto_id.producto_id.nombre,
+            'usuario':instance.usuario_id.username,
+            'monto_compra':instance.monto_compra,
+            'cantidad':instance.cantidad
         }

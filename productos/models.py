@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 #implicitamente si no se especifica los campos no pueden ser nulos
 
@@ -46,9 +47,20 @@ class Producto_Sucursal(models.Model):
         verbose_name='Producto_Sucursal'
         verbose_name_plural='Producto_Sucursales'
         
-    def __str__(self):
-        return f'{self.producto_id} --- Stock: {self.stock} - Precio: {self.precio}'
+    """ def __str__(self):
+        return f'{self.producto_id} --- Stock: {self.stock} - Precio: {self.precio}' """
     
+class Usuario_Producto(models.Model):
+    usuario_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    producto_id = models.ForeignKey(Producto_Sucursal,on_delete=models.CASCADE)
+    monto_compra = models.FloatField(null=True,blank=True)
+    cantidad = models.IntegerField(null=False)
+    fecha_creacion = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    
+    class Meta:
+        verbose_name='Usuario_Producto'
+        verbose_name_plural='Usuario_Productos'
+        
     
     
     

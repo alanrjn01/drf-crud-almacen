@@ -1,5 +1,6 @@
 from rest_framework import generics,response,status
-from productos.api.serializers import CategoriaSerializer,ProductoSerializer,SucursalSerializer,Producto_SucursalSerializer
+from rest_framework.permissions import IsAuthenticated
+from productos.api.serializers import CategoriaSerializer,ProductoSerializer,SucursalSerializer,Producto_SucursalSerializer,Usuario_ProductoSerializer
 from productos.base.base_api_views import BaseListCreateApiView,BaseRetrieveUpdateDestroyApiView
 from productos.base.base_model_view_set import BaseModelViewSet
 
@@ -14,6 +15,7 @@ class CategoriaListApiView(generics.ListAPIView):
     
     #serializador en cual toma la referencia
     serializer_class = CategoriaSerializer
+    permission_classes = (IsAuthenticated,)
     
     #indicando el queryset (obtiene todos los objetos)
     def get_queryset(self):
@@ -122,6 +124,47 @@ class SucursalModelViewSet(BaseModelViewSet):
 class ProductoSucursalModelViewSet(BaseModelViewSet):
     serializer_class = Producto_SucursalSerializer
 
+class Usuario_ProductoModelViewSet(generics.CreateAPIView):
+    """
+        recibe un json con el id_producto, id_usuario, cantidad a comprar
+        busco en la base de datos le producto y almaceno su stock y su precio
+        para poder realizar operaciones
+        compruebo si existe el stock para poder realizar la venta
+        aplico porcentaje extra al precio de 13%
+        actualizo la instancia de la base de datos
+        serializo la compra con el dato 'monto_compra' calculado
+        y utilizo los metodos .save() de ambos serializadores para actualizar
+        la base de datos. Por ultimo retorno un response con el json de la compra  
+        """
     
+    serializer_class = Usuario_ProductoSerializer
+
+    
+    def create(self,request):
+         
+        compra = request.data
+        compra_serializada = Usuario_ProductoSerializer(data=compra)
+        compra_serializada.is_valid(raise_exception=True)
+        iva = 113
+        producto_serializer = Producto_SucursalSerializer.Meta.model.objects.filter(activo=True,id=compra['producto_id']).first()
+        stock_producto_bd = producto_serializer.stock
+        precio_producto_bd = producto_serializer.precio
+        cantidad_a_comprar = compra['cantidad']
+        
+        if stock_producto_bd >= cantidad_a_comprar and stock_producto_bd > 0:
+            precio_total = 113 * (precio_producto_bd * cantidad_a_comprar) / 100
+            stock_despues_de_la_compra = stock_producto_bd - cantidad_a_comprar
+            producto_serializer.stock = stock_despues_de_la_compra
+            compra['monto_compra'] = precio_total
+            compra_serializada = Usuario_ProductoSerializer(data=compra)
+            if compra_serializada.is_valid():
+                producto_serializer.save()
+                compra_serializada.save()
+                
+                return response.Response(compra_serializada.data,status=status.HTTP_201_CREATED)
+            return response.Response({'mensaje':'los datos ingresados no son inválidos'},status=status.HTTP_400_BAD_REQUEST)
+            
+        return response.Response({'mensaje':'no hay stock suficiente para la cantidad de productos que desea comprar'},status=status.HTTP_400_BAD_REQUEST)
+        
 
 
